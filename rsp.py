@@ -3,8 +3,7 @@ import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QPushButton, QMainWindow, QVBoxLayout, QLabel, QDialog, QHBoxLayout, \
-    QMessageBox
+from PyQt5.QtWidgets import QApplication, QPushButton, QMainWindow, QVBoxLayout, QLabel, QDialog, QHBoxLayout
 
 
 class MainWindow(QMainWindow):
@@ -36,6 +35,7 @@ class MainWindow(QMainWindow):
 
     def open_second_window(self):
         self.choose_window = ChooseWindow(self)
+
         self.choose_window.show()
 
 
@@ -43,6 +43,7 @@ class ChooseWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
+        self.parent.setVisible(False)  # 将初始界面设置为不可见
         self.setWindowTitle("做出选择吧")
         self.resize(520, 320)
 
@@ -53,7 +54,7 @@ class ChooseWindow(QDialog):
 
         self.player_choice = ""  # 初始化玩家选择
         self.computer_choice = ""  # 初始化计算机选择
-        self.max_rounds = 7 # 设置最大回合数为7
+        self.max_rounds = 7  # 设置最大回合数为7
         self.round = 1
         self.player_score = 0
         self.computer_score = 0
@@ -121,9 +122,11 @@ class ChooseWindow(QDialog):
 
         self.update_scores()
         self.update_round()
+
     def update_choice(self):
         """显示双方的选择"""
-        self.label4.setText(f"你选择 {self.player_choice} | 计算机选择 {self.computer_choice}")
+        self.label4.setText(
+            f"你选择 {self.player_choice}                  |                 计算机选择 {self.computer_choice}")
 
     def update_round(self):
         """更新回合数并检查"""
@@ -133,22 +136,29 @@ class ChooseWindow(QDialog):
             self.endgame()
 
     def end_game(self):
-        try:
-            # 显示游戏结束的对话框
-            game_over_message = f"游戏结束！\n\n玩家得分: {self.player_score}\n电脑得分: {self.computer_score}"
-            QMessageBox.information(self, "游戏结束", game_over_message)
+        self.accept()
 
-            # 可以在这里添加代码，询问玩家是否要重新开始游戏
-            # ...
-
-            # 关闭选择窗口
-            self.accept()
-        except Exception as e:
-            print(f"An error occurred during end game: {e}")
     def update_scores(self):
         """重新设置双方的分值"""
         self.label2.setText(f'Player Score: {self.player_score}')
         self.label3.setText(f'Computer Score: {self.computer_score}')
+
+
+class EndGame(QDialog):
+    def __init__(self, player_score, computer_score):
+        super().__init__()
+        self.setWindowTitle('结果')
+
+        result_text = "玩家分数: {}\n电脑分数: {}".format(player_score, computer_score)
+        if player_score > computer_score:
+            result_text += "\n恭喜你，你赢了！"
+        elif player_score < computer_score:
+            result_text += "\n电脑赢了，再试一次吧！"
+        else:
+            result_text += "\n平局！"
+
+        self.label0 = QLabel(result_text, self)
+        self.label0.setGeometry(50, 20, 400, 200)
 
 
 app = QApplication(sys.argv)
