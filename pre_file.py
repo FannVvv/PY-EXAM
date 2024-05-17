@@ -11,11 +11,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle('猜拳游戏')
         self.resize(520, 320)
-        self.setWindowIcon(QIcon('Icon0.jpg'))
+        self.setWindowIcon(QIcon('pictures/Icon0.jpg'))
 
         background = QLabel(self)  # 设置主页面的背景
         background.setGeometry(0, 0, 520, 320)
-        background.setPixmap(QPixmap("pic.png"))
+        background.setPixmap(QPixmap("pictures/pic.png"))
 
         self.label1 = QLabel("欢迎来到猜拳游戏！", self)  # 设置标签名称
         self.label1.setGeometry(50, 20, 420, 50)  # 设置标签的位置
@@ -35,15 +35,14 @@ class MainWindow(QMainWindow):
 
     def open_second_window(self):
         self.choose_window = ChooseWindow(self)
-
         self.choose_window.show()
+        self.hide()
 
 
 class ChooseWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.parent = parent
-        self.parent.setVisible(False)  # 将初始界面设置为不可见
+
         self.setWindowTitle("做出选择吧")
         self.resize(520, 320)
 
@@ -54,8 +53,8 @@ class ChooseWindow(QDialog):
 
         self.player_choice = ""  # 初始化玩家选择
         self.computer_choice = ""  # 初始化计算机选择
-        self.max_rounds = 7  # 设置最大回合数为7
-        self.round = 1
+        self.max_rounds = 5  # 设置最大回合数为5
+        self.round = 0
         self.player_score = 0
         self.computer_score = 0
 
@@ -118,10 +117,9 @@ class ChooseWindow(QDialog):
         elif self.computer_choice == '布' and player_choice == '剪刀':
             self.player_score += 1
 
-        self.update_choice()
-
-        self.update_scores()
         self.update_round()
+        self.update_choice()
+        self.update_scores()
 
     def update_choice(self):
         """显示双方的选择"""
@@ -130,13 +128,19 @@ class ChooseWindow(QDialog):
 
     def update_round(self):
         """更新回合数并检查"""
-        self.label1.setText(f"Round: {self.round}")
+
         self.round += 1
-        if self.round >= self.max_rounds:  # 设置最大回合数为7
+        self.label1.setText(f"Round: {self.round}")
+        print(self.round)
+        if self.round == self.max_rounds:  # 设置最大回合数为5,
+
             self.endgame()
 
     def end_game(self):
-        self.accept()
+        self.hide()
+        ending = EndGame(self.player_score, self.computer_score)
+        ending.show()
+        ending.exec_()
 
     def update_scores(self):
         """重新设置双方的分值"""
@@ -148,7 +152,7 @@ class EndGame(QDialog):
     def __init__(self, player_score, computer_score):
         super().__init__()
         self.setWindowTitle('结果')
-
+        self.setGeometry(0, 0, 520, 320)
         result_text = "玩家分数: {}\n电脑分数: {}".format(player_score, computer_score)
         if player_score > computer_score:
             result_text += "\n恭喜你，你赢了！"
