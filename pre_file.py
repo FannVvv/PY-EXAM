@@ -1,9 +1,9 @@
 import random
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont, QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QPushButton, QMainWindow, QVBoxLayout, QLabel, QDialog, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QPushButton, QMainWindow, QVBoxLayout, QLabel, QDialog, QHBoxLayout, QMessageBox
 
 
 class MainWindow(QMainWindow):
@@ -100,8 +100,6 @@ class ChooseWindow(QDialog):
         self.player_choice = player_choice
         self.computer_choice = random.choice(['石头', '剪刀', '布'])
 
-        score_dict = {'石头': 1, '剪刀': 2, '布': 3}
-
         if self.computer_choice == player_choice:
             pass
         elif self.computer_choice == '石头' and player_choice == '布':
@@ -117,9 +115,9 @@ class ChooseWindow(QDialog):
         elif self.computer_choice == '布' and player_choice == '剪刀':
             self.player_score += 1
 
-        self.update_round()
         self.update_choice()
         self.update_scores()
+        self.update_round()
 
     def update_choice(self):
         """显示双方的选择"""
@@ -131,15 +129,13 @@ class ChooseWindow(QDialog):
 
         self.round += 1
         self.label1.setText(f"Round: {self.round}")
-        print(self.round)
         if self.round == self.max_rounds:  # 设置最大回合数为5,
-
-            self.endgame()
+            # 延迟结束游戏以便显示最后一回合的结果
+            QTimer.singleShot(500, self.end_game)  # 延迟500毫秒
 
     def end_game(self):
         self.hide()
         ending = EndGame(self.player_score, self.computer_score)
-        ending.show()
         ending.exec_()
 
     def update_scores(self):
@@ -153,6 +149,12 @@ class EndGame(QDialog):
         super().__init__()
         self.setWindowTitle('结果')
         self.setGeometry(0, 0, 520, 320)
+        self.player_score = player_score
+        self.computer_score = computer_score
+        background = QLabel(self)  # 设置主页面的背景
+        background.setGeometry(0, 0, 520, 320)
+        background.setPixmap(QPixmap("pictures/pic.png"))
+
         result_text = "玩家分数: {}\n电脑分数: {}".format(player_score, computer_score)
         if player_score > computer_score:
             result_text += "\n恭喜你，你赢了！"
@@ -163,6 +165,30 @@ class EndGame(QDialog):
 
         self.label0 = QLabel(result_text, self)
         self.label0.setGeometry(50, 20, 400, 200)
+
+        # 弹出消息框
+        self.show_message(player_score, computer_score)
+
+    def show_message(self, player_score, computer_score):
+        msg = QMessageBox()
+        msg.setWindowTitle("游戏结束")
+        if player_score > computer_score:  # 根据游戏结果设置图标
+            msg.setText("恭喜你，你赢了！")
+            msg.setIcon(QMessageBox.Information)
+            
+            msg.setIconPixmap(QPixmap('pictures/pic_win.jpg').scaled(520, 320, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        elif player_score < self.computer_score:
+            msg.setText("电脑赢了，再试一次吧！")
+            msg.setIcon(QMessageBox.Warning)
+            
+            msg.setIconPixmap(QPixmap('pictures/pic_defeat.jpg').scaled(520, 320, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        else:
+            msg.setText("平局！")
+            msg.setIcon(QMessageBox.Information)
+            
+            msg.setIconPixmap(QPixmap('pictures/pic_draw.jpg').scaled(520, 320, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        
+        msg.exec_()
 
 
 app = QApplication(sys.argv)
