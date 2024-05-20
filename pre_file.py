@@ -47,8 +47,8 @@ class ChooseWindow(QDialog):
         self.resize(520, 320)
 
         self.label1 = QLabel("Round:")
-        self.label2 = QLabel('Player Score:')
-        self.label3 = QLabel('Computer Score:')
+        self.label2 = QLabel('玩家得分:')
+        self.label3 = QLabel('电脑得分:')
         self.label4 = QLabel("")
 
         self.player_choice = ""  # 初始化玩家选择
@@ -151,20 +151,18 @@ class EndGame(QDialog):
         self.setGeometry(0, 0, 520, 320)
         self.player_score = player_score
         self.computer_score = computer_score
-        background = QLabel(self)  # 设置主页面的背景
+        background = QLabel(self)  # 设置页面的背景
         background.setGeometry(0, 0, 520, 320)
-        background.setPixmap(QPixmap("pictures/pic.png"))
+        background.setPixmap(QPixmap("pictures/pic_end.png"))
 
         result_text = "玩家分数: {}\n电脑分数: {}".format(player_score, computer_score)
-        if player_score > computer_score:
-            result_text += "\n恭喜你，你赢了！"
-        elif player_score < computer_score:
-            result_text += "\n电脑赢了，再试一次吧！"
-        else:
-            result_text += "\n平局！"
-
+        font = QFont("Arial", 32)
+        font.setBold(True)  # 设置字体加粗
+        
+        
         self.label0 = QLabel(result_text, self)
         self.label0.setGeometry(50, 20, 400, 200)
+        self.label0.setFont(font)  # 设置字体格式
 
         # 弹出消息框
         self.show_message(player_score, computer_score)
